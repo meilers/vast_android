@@ -12,6 +12,7 @@ import com.sourceknowledge.vast.models.DeviceGeo;
 import com.sourceknowledge.vast.models.RtbSpec;
 import com.sourceknowledge.vast.models.User;
 import com.sourceknowledge.vast.models.Video;
+import com.sourceknowledge.vast.models.vast.Vast;
 import com.sourceknowledge.vast.rest.VastApiClientManager;
 import com.sourceknowledge.vast.rest.DownloadVastTagClient;
 import com.sourceknowledge.vast.rest.requests.VastRequest;

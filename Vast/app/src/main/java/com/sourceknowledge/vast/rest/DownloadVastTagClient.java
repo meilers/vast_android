@@ -1,5 +1,7 @@
 package com.sourceknowledge.vast.rest;
 
+import com.sourceknowledge.vast.models.vast.Vast;
+
 import retrofit.http.Body;
 import retrofit.http.POST;
 import retrofit.mime.TypedInput;
@@ -9,6 +11,6 @@ import retrofit.mime.TypedInput;
  */
 public interface DownloadVastTagClient {
     @POST("/bid.php")
-    Integer downloadVastClient(@Body TypedInput payload);
+    Vast downloadVastClient(@Body TypedInput payload);
 }
 

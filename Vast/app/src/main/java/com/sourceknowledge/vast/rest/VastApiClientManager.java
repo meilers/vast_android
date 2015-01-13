@@ -11,6 +11,7 @@ import java.util.Map;
 
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
+import retrofit.converter.SimpleXMLConverter;
 
 /**
  * Created by Michael on 2014-03-11.
@@ -19,10 +20,13 @@ public enum VastApiClientManager {
 
     INSTANCE;
 
-    private String mBaseUrl = VSTConstants.ADS_URL;
+    private String mBaseUrl = VSTConstants.VAST_URL;
 
     private RestAdapter mRestAdapter;
     private Map<String, Object> mClients = new HashMap<String, Object>();
+
+
+
 
 
     private VastApiClientManager() {
@@ -36,7 +40,7 @@ public enum VastApiClientManager {
 
             mRestAdapter = new RestAdapter.Builder()
                     .setEndpoint(getBaseUrl())
-                    .setConverter(new GsonConverter(gson))
+                    .setConverter(new MixedConverter(new GsonConverter(gson), new SimpleXMLConverter()))
                     .build();
         }
         T client = null;
