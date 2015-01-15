@@ -61,7 +61,7 @@ public class DownloadVastTagTask extends AsyncTask<Void, Void, Void> {
             String json = new Gson().toJson(productsRequest);
             TypedInput in = new TypedByteArray("application/json", json.getBytes("UTF-8"));
 
-            client.downloadVastClient(in);
+            Vast v = client.downloadVastClient(in);
 
             return null;
         }

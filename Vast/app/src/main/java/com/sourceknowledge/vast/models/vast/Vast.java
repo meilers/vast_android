@@ -20,8 +20,7 @@ public class Vast {
     @Attribute(name = "noNamespaceSchemaLocation")
     private String mNoNamespace;
 
-    @Path("Ad/InLine/Creatives/Creative/Linear/MediaFiles")
-    @ElementList(entry="MediaFile", type=String.class, inline=true)
-    private List<Object> list;  
+    @Element(name="Ad", type=Ad.class)
+    private Ad mAd;
 
 }
