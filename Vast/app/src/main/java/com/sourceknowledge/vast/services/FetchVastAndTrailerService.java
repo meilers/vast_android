@@ -40,6 +40,8 @@ public class FetchVastAndTrailerService extends IntentService {
 
     public final static class EXTRAS
     {
+        public static final String IN_SPEC = "inSpec";
+
         public static final String OUT_VAST = "outVast";
         public static final String OUT_VAST_URI = "outVastUri";
         public static final String OUT_TRAILER = "outTrailer";
@@ -66,42 +68,23 @@ public class FetchVastAndTrailerService extends IntentService {
 
         String action = intent.getAction();
         Context c = getApplicationContext();
+        RtbSpec spec = intent.getExtras().getParcelable(EXTRAS.IN_SPEC);
 
-        if (ACTIONS.FETCH_VAST_AND_TRAILER.equals(action) ) {
+        if (ACTIONS.FETCH_VAST_AND_TRAILER.equals(action) && spec != null ) {
 
 
-            DownloadVastTagUriClient vastUriClient = VastUriApiClientManager.INSTANCE.getClient(getApplicationContext(), DownloadVastTagUriClient.class);
+            DownloadVastTagUriClient vastUriClient = VastUriApiClientManager.INSTANCE.getClient(c, DownloadVastTagUriClient.class);
             DownloadVastTagClient vastClient;
-            DownloadTrailerClient trailerClient = MovieChickApiClientManager.INSTANCE.getClient(getApplicationContext(), DownloadTrailerClient.class);
+            DownloadTrailerClient trailerClient = MovieChickApiClientManager.INSTANCE.getClient(c, DownloadTrailerClient.class);
 
 
             try {
-                List<Video> videos = new ArrayList<>();
-                List<String> mimes = new ArrayList<>();
-
-                mimes.add("video/mp4");
-                mimes.add("video/3gpp");
-                mimes.add("video/x-m4v");
-
-                Video video = new Video(900,900, mimes);
-                videos.add(video);
-
-                AppContent content = new AppContent("02752885df8d50fc2f489ad17fcab9e8", "Fury");
-                App app = new App("88201","Bidder Test Mobile App","com.foo.mobileapp",content);
-
-                DeviceGeo geo = new DeviceGeo(42.37899,-71.22799);
-                Device device = new Device(0, "Apple", "iPhone", "iOS", "3.1.2", "ATT", 3,"166.137.138.18","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; el-gr) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5",geo);
-
-                User user = new User("ASDFJKL");
-
-                RtbSpec spec = new RtbSpec(videos, app, device, user);
-
                 VastRequest productsRequest = new VastRequest(spec);
                 String json = new Gson().toJson(productsRequest);
                 TypedInput in = new TypedByteArray("application/json", json.getBytes("UTF-8"));
 
                 Vast vastUri = vastUriClient.downloadVastClientUri(in);
-                vastClient= VastApiClientManager.INSTANCE.getClient(getApplicationContext(), DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
+                vastClient= VastApiClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
                 Vast vast = vastClient.downloadVastClient();
                 ArrayList<Trailer> trailers = trailerClient.downloadTrailer("json", 1, "mp4", "high");
 

@@ -1,16 +1,23 @@
 package com.sourceknowledge.vast.models.spec;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.sourceknowledge.vast.models.vast.Linear;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by omegatai on 14-12-12.
  */
-public class Device {
+public class Device implements Parcelable {
 
     @SerializedName("dnt")
     @Expose
-    private Integer nDnt;
+    private Integer mDnt;
 
     @SerializedName("make")
     @Expose
@@ -54,7 +61,7 @@ public class Device {
     private DeviceGeo mDeviceGeo;
 
     public Device(Integer nDnt, String make, String model, String os, String osv, String carrier, Integer connectionType, String ip, String ua, DeviceGeo deviceGeo) {
-        this.nDnt = nDnt;
+        this.mDnt = nDnt;
         mMake = make;
         mModel = model;
         mOs = os;
@@ -66,12 +73,136 @@ public class Device {
         mDeviceGeo = deviceGeo;
     }
 
-    public Integer getnDnt() {
-        return nDnt;
+
+    public Device() {
     }
 
-    public void setnDnt(Integer nDnt) {
-        this.nDnt = nDnt;
+    public Device(Parcel in) {
+        readFromParcel(in);
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+
+
+
+        dest.writeInt(this.getDnt() != null ? 1:0);
+
+        if( this.getDnt() != null )
+            dest.writeInt(this.getDnt());
+
+
+        dest.writeInt(this.getMake() != null ? 1:0);
+
+        if( this.getMake() != null )
+            dest.writeString(this.getMake());
+
+
+        dest.writeInt(this.getModel() != null ? 1:0);
+
+        if( this.getModel() != null )
+            dest.writeString(this.getModel());
+
+
+        dest.writeInt(this.getOs() != null ? 1:0);
+
+        if( this.getOs() != null )
+            dest.writeString(this.getOs());
+
+
+
+        dest.writeInt(this.getOsv() != null ? 1:0);
+
+        if( this.getOsv() != null )
+            dest.writeString(this.getOsv());
+
+
+        dest.writeInt(this.getCarrier() != null ? 1:0);
+
+        if( this.getCarrier() != null )
+            dest.writeString(this.getCarrier());
+
+
+
+        dest.writeInt(this.getConnectionType() != null ? 1:0);
+
+        if( this.getConnectionType() != null )
+            dest.writeInt(this.getConnectionType());
+
+
+        dest.writeInt(this.getIp() != null ? 1:0);
+
+        if( this.getIp() != null )
+            dest.writeString(this.getIp());
+
+
+        dest.writeInt(this.getDeviceGeo() != null ? 1:0);
+
+        if( this.getDeviceGeo() != null )
+            dest.writeParcelable(this.getDeviceGeo(), flags);
+    }
+
+
+    public void readFromParcel(Parcel in) {
+
+        if( in.readInt() == 1 )
+            setDnt(in.readInt());
+
+        if( in.readInt() == 1 )
+            setMake(in.readString());
+
+        if( in.readInt() == 1 )
+            setModel(in.readString());
+
+        if( in.readInt() == 1 )
+            setOs(in.readString());
+
+        if( in.readInt() == 1 )
+            setOsv(in.readString());
+
+        if( in.readInt() == 1 )
+            setCarrier(in.readString());
+
+        if( in.readInt() == 1 )
+            setConnectionType(in.readInt());
+
+        if( in.readInt() == 1 )
+            setIp(in.readString());
+
+
+        if( in.readInt() == 1 )
+            setDeviceGeo((DeviceGeo) in.readParcelable(Linear.class.getClassLoader()));
+
+
+    }
+
+    public static Parcelable.Creator<Device> CREATOR = new Parcelable.Creator<Device>() {
+
+        @Override
+        public Device createFromParcel(Parcel in) {
+            return new Device(in);
+        }
+
+        @Override
+        public Device[] newArray(int size) {
+            return new Device[size];
+        }
+    };
+
+
+    public Integer getDnt() {
+        return mDnt;
+    }
+
+    public void setDnt(Integer dnt) {
+        mDnt = dnt;
     }
 
     public String getMake() {
