@@ -1,11 +1,12 @@
 package com.sourceknowledge.vast;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.sourceknowledge.vast.tasks.DownloadVastTagTask;
+import com.sourceknowledge.vast.services.FetchVastAndTrailerService;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,7 +22,10 @@ public class MainActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        new DownloadVastTagTask().execute();
+        Intent intent = new Intent(this, FetchVastAndTrailerService.class);
+        intent.setAction(FetchVastAndTrailerService.ACTIONS.FETCH_VAST_AND_TRAILER);
+        startService(intent);
+
     }
 
     @Override

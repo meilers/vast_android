@@ -1,6 +1,6 @@
 package com.sourceknowledge.vast.rest.requests;
 
-import com.sourceknowledge.vast.models.RtbSpec;
+import com.sourceknowledge.vast.models.spec.RtbSpec;
 
 /**
  * Created by omegatai on 14-12-12.

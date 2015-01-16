@@ -16,11 +16,11 @@ import retrofit.converter.SimpleXMLConverter;
 /**
  * Created by Michael on 2014-03-11.
  */
-public enum VastApiClientManager {
+public enum MovieChickApiClientManager {
 
     INSTANCE;
 
-    private String mBaseUrl = VSTConstants.VAST_URL;
+    private String mBaseUrl = VSTConstants.MOVIE_CHICK_URL;
 
     private RestAdapter mRestAdapter;
     private Map<String, Object> mClients = new HashMap<String, Object>();
@@ -29,21 +29,20 @@ public enum VastApiClientManager {
 
 
 
-    private VastApiClientManager() {
+    private MovieChickApiClientManager() {
     }
 
+
     @SuppressWarnings("unchecked")
-    public <T> T getClient(Context context, Class<T> clazz, String url) {
+    public <T> T getClient(Context context, Class<T> clazz) {
+        if (mRestAdapter == null) {
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-        mBaseUrl = url;
-
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-
-        mRestAdapter = new RestAdapter.Builder()
-                .setEndpoint(getBaseUrl())
-                .setConverter(new MixedConverter(new GsonConverter(gson), new SimpleXMLConverter()))
-                .build();
-
+            mRestAdapter = new RestAdapter.Builder()
+                    .setEndpoint(getBaseUrl())
+                    .setConverter(new GsonConverter(gson))
+                    .build();
+        }
         T client = null;
         if ((client = (T) mClients.get(clazz.getCanonicalName())) != null) {
             return client;

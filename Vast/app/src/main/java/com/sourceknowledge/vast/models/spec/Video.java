@@ -1,4 +1,4 @@
-package com.sourceknowledge.vast.models;
+package com.sourceknowledge.vast.models.spec;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

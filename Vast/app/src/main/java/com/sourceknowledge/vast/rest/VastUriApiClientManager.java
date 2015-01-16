@@ -16,17 +16,20 @@ import retrofit.converter.SimpleXMLConverter;
 /**
  * Created by Michael on 2014-03-11.
  */
-public enum TrailersApiClientManager {
+public enum VastUriApiClientManager {
 
     INSTANCE;
 
-    private String mBaseUrl = VSTConstants.TRAILERS_URL;
+    private String mBaseUrl = VSTConstants.VAST_URL;
 
     private RestAdapter mRestAdapter;
     private Map<String, Object> mClients = new HashMap<String, Object>();
 
 
-    private TrailersApiClientManager() {
+
+
+
+    private VastUriApiClientManager() {
     }
 
 
@@ -37,7 +40,7 @@ public enum TrailersApiClientManager {
 
             mRestAdapter = new RestAdapter.Builder()
                     .setEndpoint(getBaseUrl())
-                    .setConverter(new SimpleXMLConverter())
+                    .setConverter(new MixedConverter(new GsonConverter(gson), new SimpleXMLConverter()))
                     .build();
         }
         T client = null;
