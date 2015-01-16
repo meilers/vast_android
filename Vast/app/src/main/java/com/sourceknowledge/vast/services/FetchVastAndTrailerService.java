@@ -92,7 +92,7 @@ public class FetchVastAndTrailerService extends IntentService {
                 resultIntent.putExtra(EXTRAS.OUT_VAST_URI, vastUri);
                 resultIntent.putExtra(EXTRAS.OUT_VAST, vast);
                 resultIntent.putParcelableArrayListExtra(EXTRAS.OUT_TRAILER, trailers);
-                sendBroadcast(intent);
+                sendBroadcast(resultIntent);
             }
             catch (RetrofitError e)
             {

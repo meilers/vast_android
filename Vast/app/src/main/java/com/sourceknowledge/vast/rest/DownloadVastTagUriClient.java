@@ -4,6 +4,7 @@ import com.sourceknowledge.vast.models.vast.Vast;
 
 import retrofit.http.Body;
 import retrofit.http.POST;
+import retrofit.http.Query;
 import retrofit.mime.TypedInput;
 
 /**
