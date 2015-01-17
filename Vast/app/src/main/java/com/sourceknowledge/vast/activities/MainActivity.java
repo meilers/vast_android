@@ -1,4 +1,4 @@
-package com.sourceknowledge.vast;
+package com.sourceknowledge.vast.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,20 +6,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.location.Location;
-import android.support.v7.app.ActionBarActivity;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import com.google.android.gms.location.LocationServices;
-import com.sourceknowledge.vast.activities.BaseActivity;
+import com.sourceknowledge.vast.R;
+import com.sourceknowledge.vast.models.Trailer;
 import com.sourceknowledge.vast.models.spec.App;
 import com.sourceknowledge.vast.models.spec.AppContent;
 import com.sourceknowledge.vast.models.spec.Device;
@@ -27,12 +28,14 @@ import com.sourceknowledge.vast.models.spec.DeviceGeo;
 import com.sourceknowledge.vast.models.spec.RtbSpec;
 import com.sourceknowledge.vast.models.spec.User;
 import com.sourceknowledge.vast.models.spec.Video;
+import com.sourceknowledge.vast.models.vast.Vast;
 import com.sourceknowledge.vast.services.FetchVastAndTrailerService;
 import com.sourceknowledge.vast.util.AppUtil;
 import com.sourceknowledge.vast.util.CarrierUtil;
 import com.sourceknowledge.vast.util.DeviceUtil;
 import com.sourceknowledge.vast.util.UiUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,7 +105,18 @@ public class MainActivity extends BaseActivity implements LocationListener {
             String action = intent.getAction();
 
             if (action.equals(FetchVastAndTrailerService.ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED)) {
+
+
                 hideProgressDialog();
+
+                List<Trailer> trailers = intent.getExtras().getParcelableArrayList(FetchVastAndTrailerService.EXTRAS.OUT_TRAILER);
+                Vast vast = intent.getExtras().getParcelable(FetchVastAndTrailerService.EXTRAS.OUT_VAST);
+
+                Trailer trailer = trailers.get(0);
+                Intent videoIntent = new Intent(MainActivity.this, VideoActivity.class);
+                videoIntent.putExtra(VideoActivity.EXTRAS.IN_TRAILER, trailer);
+                videoIntent.putExtra(VideoActivity.EXTRAS.IN_VAST, vast);
+                startActivity(videoIntent);
             }
         }
     };
@@ -231,33 +245,5 @@ public class MainActivity extends BaseActivity implements LocationListener {
     public void onLocationChanged(Location location) {
 
         mLocation = location;
-
-
-        List<Video> videos = new ArrayList<>();
-        List<String> mimes = new ArrayList<>();
-
-        mimes.add("video/mp4");
-        mimes.add("video/3gpp");
-        mimes.add("video/x-m4v");
-
-        DisplayMetrics metrics = UiUtil.getScreenMetrics(getApplicationContext());
-        Video video = new Video(metrics.heightPixels,metrics.widthPixels, mimes);
-        videos.add(video);
-
-        AppContent content = new AppContent("02752885df8d50fc2f489ad17fcab9e8", "Fury");
-        App app = new App("88201", "Bidder Test Android App", "com.sourceknowledge.vast",content);
-
-        DeviceGeo geo = new DeviceGeo(42.37899,-71.22799);
-        Device device = new Device(0, "Apple", "iPhone", "iOS", "3.1.2", "ATT", 3,"166.137.138.18","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; el-gr) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5",geo);
-
-        User user = new User("ASDFJKL");
-
-        RtbSpec spec = new RtbSpec(videos, app, device, user);
-
-
-        Intent intent = new Intent(this, FetchVastAndTrailerService.class);
-        intent.setAction(FetchVastAndTrailerService.ACTIONS.FETCH_VAST_AND_TRAILER);
-        intent.putExtra(FetchVastAndTrailerService.EXTRAS.IN_SPEC, spec);
-        startService(intent);
     }
 }
