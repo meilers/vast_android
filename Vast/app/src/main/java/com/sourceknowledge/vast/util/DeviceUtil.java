@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -26,6 +27,12 @@ public class DeviceUtil {
     public static Integer getDnt()
     {
         return 0;
+    }
+
+    public static String getDeviceId(Context c)
+    {
+        return Settings.Secure.getString(c.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
     }
 
     public static String getMake()

@@ -79,6 +79,12 @@ public class FetchVastAndTrailerService extends IntentService {
 
 
             try {
+                ArrayList<Trailer> trailers = trailerClient.downloadTrailer("json", 1, "mp4", "high");
+                Trailer trailer = trailers.get(0);
+                AppContent content = new AppContent();
+                content.setId(trailer.getTitle().hashCode()+"");
+                content.setTitle(trailer.getTitle());
+
                 VastRequest productsRequest = new VastRequest(spec);
                 String json = new Gson().toJson(productsRequest);
                 TypedInput in = new TypedByteArray("application/json", json.getBytes("UTF-8"));
@@ -86,7 +92,6 @@ public class FetchVastAndTrailerService extends IntentService {
                 Vast vastUri = vastUriClient.downloadVastClientUri(in);
                 vastClient= VastApiClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
                 Vast vast = vastClient.downloadVastClient();
-                ArrayList<Trailer> trailers = trailerClient.downloadTrailer("json", 1, "mp4", "high");
 
                 Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);
                 resultIntent.putExtra(EXTRAS.OUT_VAST_URI, vastUri);

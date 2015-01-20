@@ -209,9 +209,7 @@ public class MainActivity extends BaseActivity implements LocationListener {
         Video video = new Video(900,900, mimes);
         videos.add(video);
 
-        // TODO: what is App Content?
-        AppContent content = new AppContent("02752885df8d50fc2f489ad17fcab9e8", "Fury");
-        App app = new App( AppUtil.getAppId(), AppUtil.getAppName(c),AppUtil.getPackageName(c), content);
+        App app = new App( AppUtil.getAppId(), AppUtil.getAppName(c),AppUtil.getPackageName(c), null);
         DeviceGeo geo = null;
 
         if( mLocation != null )
@@ -228,8 +226,7 @@ public class MainActivity extends BaseActivity implements LocationListener {
                 DeviceUtil.getUserAgent(c),
                 geo);
 
-        // TODO: what is user?
-        User user = new User("ASDFJKL");
+        User user = new User(DeviceUtil.getDeviceId(this));
 
         RtbSpec spec = new RtbSpec(videos, app, device, user);
 

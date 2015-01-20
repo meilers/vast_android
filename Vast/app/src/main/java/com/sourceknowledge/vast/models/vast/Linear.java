@@ -26,6 +26,9 @@ public class Linear implements Parcelable {
     @Element(name="VideoClicks", type=VideoClicks.class, required=false)
     private VideoClicks mVideoClicks;
 
+    @Element(name="MediaFiles", type=MediaFiles.class, required=false)
+    private MediaFiles mMediaFiles;
+
     public Linear() {
     }
 
@@ -59,6 +62,12 @@ public class Linear implements Parcelable {
 
         if( this.getVideoClicks() != null )
             dest.writeParcelable(this.getVideoClicks(), flags);
+
+
+        dest.writeInt(this.getMediaFiles() != null ? 1:0);
+
+        if( this.getMediaFiles() != null )
+            dest.writeParcelable(this.getMediaFiles(), flags);
     }
 
 
@@ -72,6 +81,9 @@ public class Linear implements Parcelable {
 
         if( in.readInt() == 1 )
             setVideoClicks((VideoClicks) in.readParcelable(VideoClicks.class.getClassLoader()));
+
+        if( in.readInt() == 1 )
+            setMediaFiles((MediaFiles) in.readParcelable(MediaFiles.class.getClassLoader()));
     }
 
     public static Parcelable.Creator<Linear> CREATOR = new Parcelable.Creator<Linear>() {
@@ -110,5 +122,13 @@ public class Linear implements Parcelable {
 
     public void setVideoClicks(VideoClicks videoClicks) {
         mVideoClicks = videoClicks;
+    }
+
+    public MediaFiles getMediaFiles() {
+        return mMediaFiles;
+    }
+
+    public void setMediaFiles(MediaFiles mediaFiles) {
+        mMediaFiles = mediaFiles;
     }
 }
