@@ -16,11 +16,11 @@ import retrofit.converter.SimpleXMLConverter;
 /**
  * Created by Michael on 2014-03-11.
  */
-public enum VastApiClientManager {
+public enum GenericClientManager {
 
     INSTANCE;
 
-    private String mBaseUrl = VSTConstants.VAST_URL;
+    private String mBaseUrl;
 
     private RestAdapter mRestAdapter;
     private Map<String, Object> mClients = new HashMap<String, Object>();
@@ -29,7 +29,7 @@ public enum VastApiClientManager {
 
 
 
-    private VastApiClientManager() {
+    private GenericClientManager() {
     }
 
     @SuppressWarnings("unchecked")

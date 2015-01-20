@@ -3,28 +3,21 @@ package com.sourceknowledge.vast.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 
 import com.google.gson.Gson;
 import com.sourceknowledge.vast.models.Trailer;
-import com.sourceknowledge.vast.models.spec.App;
 import com.sourceknowledge.vast.models.spec.AppContent;
-import com.sourceknowledge.vast.models.spec.Device;
-import com.sourceknowledge.vast.models.spec.DeviceGeo;
 import com.sourceknowledge.vast.models.spec.RtbSpec;
-import com.sourceknowledge.vast.models.spec.User;
-import com.sourceknowledge.vast.models.spec.Video;
 import com.sourceknowledge.vast.models.vast.Vast;
 import com.sourceknowledge.vast.rest.DownloadTrailerClient;
 import com.sourceknowledge.vast.rest.DownloadVastTagClient;
 import com.sourceknowledge.vast.rest.DownloadVastTagUriClient;
+import com.sourceknowledge.vast.rest.GenericClientManager;
 import com.sourceknowledge.vast.rest.MovieChickApiClientManager;
-import com.sourceknowledge.vast.rest.VastApiClientManager;
 import com.sourceknowledge.vast.rest.VastUriApiClientManager;
 import com.sourceknowledge.vast.rest.requests.VastRequest;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import retrofit.RetrofitError;
 import retrofit.mime.TypedByteArray;
@@ -90,7 +83,7 @@ public class FetchVastAndTrailerService extends IntentService {
                 TypedInput in = new TypedByteArray("application/json", json.getBytes("UTF-8"));
 
                 Vast vastUri = vastUriClient.downloadVastClientUri(in);
-                vastClient= VastApiClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
+                vastClient= GenericClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
                 Vast vast = vastClient.downloadVastClient();
 
                 Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);

@@ -109,13 +109,15 @@ public class MainActivity extends BaseActivity implements LocationListener {
 
                 hideProgressDialog();
 
-                List<Trailer> trailers = intent.getExtras().getParcelableArrayList(FetchVastAndTrailerService.EXTRAS.OUT_TRAILER);
+                Vast vastUri = intent.getExtras().getParcelable(FetchVastAndTrailerService.EXTRAS.OUT_VAST_URI);
                 Vast vast = intent.getExtras().getParcelable(FetchVastAndTrailerService.EXTRAS.OUT_VAST);
+                List<Trailer> trailers = intent.getExtras().getParcelableArrayList(FetchVastAndTrailerService.EXTRAS.OUT_TRAILER);
 
                 Trailer trailer = trailers.get(0);
                 Intent videoIntent = new Intent(MainActivity.this, VideoActivity.class);
-                videoIntent.putExtra(VideoActivity.EXTRAS.IN_TRAILER, trailer);
+                videoIntent.putExtra(VideoActivity.EXTRAS.IN_VAST_URI, vastUri);
                 videoIntent.putExtra(VideoActivity.EXTRAS.IN_VAST, vast);
+                videoIntent.putExtra(VideoActivity.EXTRAS.IN_TRAILER, trailer);
                 startActivity(videoIntent);
             }
         }

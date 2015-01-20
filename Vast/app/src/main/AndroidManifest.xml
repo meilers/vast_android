@@ -34,6 +34,8 @@
 
 
         <service android:name=".services.FetchVastAndTrailerService" />
+        <service android:name=".services.TrackService" />
+
     </application>
 
 </manifest>

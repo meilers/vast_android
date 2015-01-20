@@ -1,35 +1,23 @@
 package com.sourceknowledge.vast.activities;
 
 import android.app.Activity;
-import android.content.res.Configuration;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.MediaController;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.sourceknowledge.vast.R;
 import com.sourceknowledge.vast.models.Trailer;
+import com.sourceknowledge.vast.models.vast.MediaFile;
+import com.sourceknowledge.vast.models.vast.Tracking;
 import com.sourceknowledge.vast.models.vast.Vast;
-
-import java.io.IOException;
+import com.sourceknowledge.vast.services.TrackService;
+import com.sourceknowledge.vast.util.UiUtil;
 
 /**
  * Created by omegatai on 15-01-16.
@@ -41,6 +29,7 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
     public final static class EXTRAS
     {
         public static final String IN_VAST = "inVast";
+        public static final String IN_VAST_URI = "inVastUri";
         public static final String IN_TRAILER = "inTrailer";
     }
 
@@ -50,6 +39,7 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
     }
 
 
+    private Vast mVastUri;
     private Vast mVast;
     private Trailer mTrailer;
     private ViewingState mViewingState = ViewingState.AD;
@@ -63,6 +53,7 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
+        mVastUri = getIntent().getExtras().getParcelable(EXTRAS.IN_VAST_URI);
         mVast = getIntent().getExtras().getParcelable(EXTRAS.IN_VAST);
         mTrailer = getIntent().getExtras().getParcelable(EXTRAS.IN_TRAILER);
 
@@ -71,10 +62,30 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
         mVV.setOnPreparedListener(this);
         mVV.setOnTouchListener(this);
 
+        int screenWidth = UiUtil.getScreenMetrics(this).heightPixels; // we're in landscape
+        int adWidth;
+        int lastSavedWidth = 0;
+        String adUrl = "";
 
+        for( MediaFile file : mVast.getAd().getInLine().getCreatives().getCreative().getLinear().getMediaFiles().getMediaFiles() )
+        {
+            adWidth = Integer.valueOf(file.getWidth());
 
-        mVV.setVideoURI(Uri.parse(mVast.getAd().getInLine().getCreatives().getCreative().getLinear().getMediaFiles().getMediaFiles().get(0).getValue()));
+            if( adWidth <= screenWidth && adWidth > lastSavedWidth && file.getType().equals("video/mp4") ) {
+                adUrl = file.getValue();
+                lastSavedWidth = adWidth;
+            }
+        }
+
+        mVV.setVideoURI(Uri.parse(adUrl));
         mVV.start();
+
+
+        // Track impressions
+        for( String impression : mVastUri.getAd().getWrapper().getImpressions() )
+        {
+            track(impression);
+        }
 
     }
 
@@ -96,6 +107,44 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
         {
 
             case AD:
+                // Track events
+                String startUrl = "";
+                String firstQuartile = "";
+                String midpointUrl = "";
+                String thirdQuartile = "";
+                String completeUrl = "";
+
+                for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
+                {
+                    if( track.getEvent().equals("start"))
+                    {
+                        startUrl = track.getValue();
+                    }
+                    else if( track.getEvent().equals("firstQuartile"))
+                    {
+                        firstQuartile = track.getValue();
+                    }
+                    else if( track.getEvent().equals("midpoint"))
+                    {
+                        midpointUrl = track.getValue();
+                    }
+                    else if( track.getEvent().equals("thirdQuartile"))
+                    {
+                        thirdQuartile = track.getValue();
+                    }
+                    else if( track.getEvent().equals("complete"))
+                    {
+                        completeUrl = track.getValue();
+                    }
+                }
+
+                track(startUrl);
+                track(firstQuartile);
+                track(midpointUrl);
+                track(thirdQuartile);
+                track(completeUrl);
+
+                // Change state
                 mViewingState = ViewingState.TRAILER;
 
                 // Let user control trailer
@@ -138,8 +187,63 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        int position = mVV.getCurrentPosition();
-        Toast.makeText(this, "Position: " + position + ", Duration: " + mVV.getDuration(), Toast.LENGTH_LONG).show();
+        // Track progress
+        float progress =  (float)(mVV.getCurrentPosition() / mVV.getDuration());
+
+        String startUrl = "";
+        String firstQuartile = "";
+        String midpointUrl = "";
+        String thirdQuartile = "";
+
+        for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
+        {
+            if( track.getEvent().equals("start"))
+            {
+                startUrl = track.getValue();
+            }
+            else if( track.getEvent().equals("firstQuartile"))
+            {
+                firstQuartile = track.getValue();
+            }
+            else if( track.getEvent().equals("midpoint"))
+            {
+                midpointUrl = track.getValue();
+            }
+            else if( track.getEvent().equals("thirdQuartile"))
+            {
+                thirdQuartile = track.getValue();
+            }
+        }
+
+        track(startUrl);
+
+        if( progress >= 0.25 )
+        {
+            track(firstQuartile);
+
+            if( progress >= 0.5 )
+            {
+                track(midpointUrl);
+
+                if( progress >= 0.75 )
+                {
+                    track(thirdQuartile);
+                }
+            }
+        }
+
+        // Track clicks
+        for( String click : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getVideoClicks().getClickTrackings() )
+        {
+            track(click);
+        }
+
+
+        String url = mVast.getAd().getInLine().getCreatives().getCreative().getLinear().getVideoClicks().getClickThrough();
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
+        finish();
 
         return true;
     }
@@ -160,5 +264,13 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
 //                mMediaController.setAnchorView(mVV);
 //            }
 //        });
+    }
+
+    private void track( String url )
+    {
+        Intent intent = new Intent(this, TrackService.class);
+        intent.setAction(TrackService.ACTIONS.TRACK);
+        intent.putExtra(TrackService.EXTRAS.IN_TRACK_URL, url);
+        startService(intent);
     }
 }
