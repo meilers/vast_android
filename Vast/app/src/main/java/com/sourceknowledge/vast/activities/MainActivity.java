@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,8 +50,11 @@ public class MainActivity extends BaseActivity implements LocationListener {
     private LocationRequest mLocationRequest;
 
     private boolean mUpdatesRequested = true;
-
     private Location mLocation;
+
+    private ImageView mPlayBtn;
+
+
 
     private GoogleApiClient.ConnectionCallbacks mServicesConnectedListener = new GoogleApiClient.ConnectionCallbacks() {
 
@@ -133,6 +138,15 @@ public class MainActivity extends BaseActivity implements LocationListener {
                 .addConnectionCallbacks(mServicesConnectedListener)
                 .addOnConnectionFailedListener(mServicesConnectionFailedListener)
                 .build();
+
+        mPlayBtn = (ImageView)findViewById(R.id.activity_main_play_btn);
+        mPlayBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgressDialog("Loading trailer...", "");
+                fetchVastAndTrailer();
+            }
+        });
     }
 
 
@@ -173,29 +187,6 @@ public class MainActivity extends BaseActivity implements LocationListener {
 
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            showProgressDialog("Loading trailer...", "");
-            fetchVastAndTrailer();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     private void fetchVastAndTrailer()
