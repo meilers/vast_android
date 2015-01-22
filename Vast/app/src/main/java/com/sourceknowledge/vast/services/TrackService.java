@@ -43,6 +43,10 @@ public class TrackService extends IntentService {
         Context c = getApplicationContext();
         String trackUrl = intent.getExtras().getString(EXTRAS.IN_TRACK_URL);
 
+        // TODO: get auction price and auction id
+        trackUrl = trackUrl.replace("${AUCTION_ID}", "1");
+        trackUrl = trackUrl.replace("${AUCTION_PRICE}", "test-auction-123");
+
         if (ACTIONS.TRACK.equals(action) && trackUrl != null ) {
 
             TrackClient vastClient = GenericClientManager.INSTANCE.getClient(c, TrackClient.class, trackUrl);

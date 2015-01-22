@@ -13,6 +13,7 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -53,7 +54,7 @@ public class MainActivity extends BaseActivity implements LocationListener {
     private Location mLocation;
 
     private ImageView mPlayBtn;
-
+    private Button mSettingsBtn;
 
 
     private GoogleApiClient.ConnectionCallbacks mServicesConnectedListener = new GoogleApiClient.ConnectionCallbacks() {
@@ -145,6 +146,15 @@ public class MainActivity extends BaseActivity implements LocationListener {
             public void onClick(View v) {
                 showProgressDialog("Loading trailer...", "");
                 fetchVastAndTrailer();
+            }
+        });
+
+        mSettingsBtn = (Button)findViewById(R.id.activity_main_settings_btn);
+        mSettingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
             }
         });
     }

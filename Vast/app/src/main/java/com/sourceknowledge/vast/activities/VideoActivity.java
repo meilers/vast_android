@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,11 +48,16 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
     private VideoView mVV;
     private MediaController mMediaController;
 
+    private int mStopPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
+
+        if( savedInstanceState != null ) {
+            mStopPosition = savedInstanceState.getInt("position");
+        }
 
         mVastUri = getIntent().getExtras().getParcelable(EXTRAS.IN_VAST_URI);
         mVast = getIntent().getExtras().getParcelable(EXTRAS.IN_VAST);
@@ -98,6 +104,35 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
             mVV.stopPlayback();
             mVV = null;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if( mVV != null )
+        {
+            mVV.seekTo(mStopPosition);
+            mVV.start(); //Or use resume() if it doesn't work. I'm not sure
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if( mVV != null )
+        {
+            mVV.pause();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mStopPosition = mVV.getCurrentPosition();
+        mVV.pause();
+        outState.putInt("position", mStopPosition);
     }
 
     @Override
@@ -187,65 +222,70 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        // Track progress
-        float progress =  (float)(mVV.getCurrentPosition() / mVV.getDuration());
+        switch(event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // Track progress
+                float progress =  (float)(mVV.getCurrentPosition() / mVV.getDuration());
 
-        String startUrl = "";
-        String firstQuartile = "";
-        String midpointUrl = "";
-        String thirdQuartile = "";
+                String startUrl = "";
+                String firstQuartile = "";
+                String midpointUrl = "";
+                String thirdQuartile = "";
 
-        for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
-        {
-            if( track.getEvent().equals("start"))
-            {
-                startUrl = track.getValue();
-            }
-            else if( track.getEvent().equals("firstQuartile"))
-            {
-                firstQuartile = track.getValue();
-            }
-            else if( track.getEvent().equals("midpoint"))
-            {
-                midpointUrl = track.getValue();
-            }
-            else if( track.getEvent().equals("thirdQuartile"))
-            {
-                thirdQuartile = track.getValue();
-            }
-        }
-
-        track(startUrl);
-
-        if( progress >= 0.25 )
-        {
-            track(firstQuartile);
-
-            if( progress >= 0.5 )
-            {
-                track(midpointUrl);
-
-                if( progress >= 0.75 )
+                for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
                 {
-                    track(thirdQuartile);
+                    if( track.getEvent().equals("start"))
+                    {
+                        startUrl = track.getValue();
+                    }
+                    else if( track.getEvent().equals("firstQuartile"))
+                    {
+                        firstQuartile = track.getValue();
+                    }
+                    else if( track.getEvent().equals("midpoint"))
+                    {
+                        midpointUrl = track.getValue();
+                    }
+                    else if( track.getEvent().equals("thirdQuartile"))
+                    {
+                        thirdQuartile = track.getValue();
+                    }
                 }
-            }
+
+                track(startUrl);
+
+                if( progress >= 0.25 )
+                {
+                    track(firstQuartile);
+
+                    if( progress >= 0.5 )
+                    {
+                        track(midpointUrl);
+
+                        if( progress >= 0.75 )
+                        {
+                            track(thirdQuartile);
+                        }
+                    }
+                }
+
+                // Track clicks
+                for( String click : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getVideoClicks().getClickTrackings() )
+                {
+                    track(click);
+                }
+
+
+                String url = mVast.getAd().getInLine().getCreatives().getCreative().getLinear().getVideoClicks().getClickThrough();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+
+                return true; // if you want to handle the touch event
         }
-
-        // Track clicks
-        for( String click : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getVideoClicks().getClickTrackings() )
-        {
-            track(click);
-        }
+        return false;
 
 
-        String url = mVast.getAd().getInLine().getCreatives().getCreative().getLinear().getVideoClicks().getClickThrough();
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
-        finish();
-
-        return true;
     }
 
     @Override

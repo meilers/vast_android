@@ -12,21 +12,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by Michael on 2014-04-02.
  */
-public enum VastManager {
+public enum ZoneIdManager {
 
     INSTANCE;
 
     private CopyOnWriteArrayList<VastListener> mVastListeners = new CopyOnWriteArrayList<VastListener>();
-    private Vast mVast;
+    private String mZoneId;
 
-    public Vast getVast()
-    {
-        return mVast;
+    public String getZoneId() {
+        return mZoneId;
     }
 
-    public void setVast(Vast vast) {
-
-        mVast = vast;
+    public void setZoneId(String zoneId) {
+        mZoneId = zoneId;
         fireVastEvent();
     }
 
