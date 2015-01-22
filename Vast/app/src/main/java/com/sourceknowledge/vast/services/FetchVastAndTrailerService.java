@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.google.gson.Gson;
+import com.sourceknowledge.vast.managers.ZoneIdManager;
 import com.sourceknowledge.vast.models.Trailer;
 import com.sourceknowledge.vast.models.spec.AppContent;
 import com.sourceknowledge.vast.models.spec.RtbSpec;
@@ -84,7 +85,7 @@ public class FetchVastAndTrailerService extends IntentService {
 
                 Vast vastUri = vastUriClient.downloadVastClientUri(in);
                 vastClient= GenericClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
-                Vast vast = vastClient.downloadVastClient();
+                Vast vast = vastClient.downloadVastClient(ZoneIdManager.INSTANCE.getZoneId());
 
                 Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);
                 resultIntent.putExtra(EXTRAS.OUT_VAST_URI, vastUri);

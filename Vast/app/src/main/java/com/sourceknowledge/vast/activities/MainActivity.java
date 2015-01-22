@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationRequest;
 
 import com.google.android.gms.location.LocationServices;
 import com.sourceknowledge.vast.R;
+import com.sourceknowledge.vast.fragments.SettingsDialogFragment;
 import com.sourceknowledge.vast.models.Trailer;
 import com.sourceknowledge.vast.models.spec.App;
 import com.sourceknowledge.vast.models.spec.AppContent;
@@ -153,8 +154,9 @@ public class MainActivity extends BaseActivity implements LocationListener {
         mSettingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+
+                SettingsDialogFragment dialog = SettingsDialogFragment.newInstance();
+                dialog.show(getSupportFragmentManager(), SettingsDialogFragment.class.getSimpleName());
             }
         });
     }

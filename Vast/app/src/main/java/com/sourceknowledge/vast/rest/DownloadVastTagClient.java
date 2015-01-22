@@ -6,6 +6,7 @@ import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
+import retrofit.http.Query;
 import retrofit.mime.TypedInput;
 
 /**
@@ -13,6 +14,6 @@ import retrofit.mime.TypedInput;
  */
 public interface DownloadVastTagClient {
     @GET("/")
-    Vast downloadVastClient();
+    Vast downloadVastClient(@Query("zoneid") String zoneId);
 }
 

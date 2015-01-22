@@ -5,24 +5,23 @@ package com.sourceknowledge.vast.managers;
  */
 
 import com.sourceknowledge.vast.listeners.VastListener;
-import com.sourceknowledge.vast.models.vast.Vast;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Michael on 2014-04-02.
  */
-public enum ZoneIdManager {
+public enum DebugManager {
 
     INSTANCE;
 
-    private String mZoneId;
+    private boolean mIsDebug;
 
-    public String getZoneId() {
-        return mZoneId;
+    public boolean isDebug() {
+        return mIsDebug;
     }
 
-    public void setZoneId(String zoneId) {
-        mZoneId = zoneId;
+    public void setDebug(boolean isDebug) {
+        mIsDebug = isDebug;
     }
 }

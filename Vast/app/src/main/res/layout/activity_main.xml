@@ -35,6 +35,8 @@
         android:layout_marginBottom="@dimen/padding_extra_large"
         android:layout_width="wrap_content"
         android:text="settings"
+        android:paddingRight="@dimen/padding_medium"
+        android:paddingLeft="@dimen/padding_medium"
         android:textAllCaps="true"
         android:layout_height="wrap_content"/>
 
