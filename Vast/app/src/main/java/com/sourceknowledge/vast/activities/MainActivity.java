@@ -211,7 +211,8 @@ public class MainActivity extends BaseActivity implements LocationListener {
         mimes.add("video/3gpp");
         mimes.add("video/x-m4v");
 
-        Video video = new Video(900,900, mimes);
+        DisplayMetrics metrics = UiUtil.getScreenMetrics(this);
+        Video video = new Video(900,900, mimes); // In landscape mode
         videos.add(video);
 
         App app = new App( AppUtil.getAppId(), AppUtil.getAppName(c),AppUtil.getPackageName(c), null);

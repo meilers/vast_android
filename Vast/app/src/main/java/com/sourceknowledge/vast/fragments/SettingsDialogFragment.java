@@ -1,5 +1,6 @@
 package com.sourceknowledge.vast.fragments;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -55,11 +56,6 @@ public class SettingsDialogFragment extends DialogFragment
             @Override
             public void onClick(View v) {
 
-                if( !mZoneIdEt.getText().toString().isEmpty() )
-                {
-                    ZoneIdManager.INSTANCE.setZoneId(mZoneIdEt.getText().toString());
-                }
-
                 dismiss();
             }
         });
@@ -107,6 +103,16 @@ public class SettingsDialogFragment extends DialogFragment
         {
             mNoBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.shape_black_rectangle_white_border));
             mYesBtn.setBackgroundColor(getResources().getColor(android.R.color.black));
+        }
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        if( !mZoneIdEt.getText().toString().isEmpty() )
+        {
+            ZoneIdManager.INSTANCE.setZoneId(mZoneIdEt.getText().toString());
         }
     }
 }

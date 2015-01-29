@@ -10,9 +10,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.sourceknowledge.vast.R;
+import com.sourceknowledge.vast.managers.DebugManager;
 import com.sourceknowledge.vast.models.Trailer;
 import com.sourceknowledge.vast.models.vast.MediaFile;
 import com.sourceknowledge.vast.models.vast.Tracking;
@@ -47,6 +49,85 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
 
     private VideoView mVV;
     private MediaController mMediaController;
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            float progress =  (float)(mVV.getCurrentPosition() / mVV.getDuration());
+
+            String startUrl = "";
+            String firstQuartile = "";
+            String midpointUrl = "";
+            String thirdQuartile = "";
+
+            for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
+            {
+                if( track.getEvent().equals("start"))
+                {
+                    startUrl = track.getValue();
+                }
+                else if( track.getEvent().equals("firstQuartile"))
+                {
+                    firstQuartile = track.getValue();
+                }
+                else if( track.getEvent().equals("midpoint"))
+                {
+                    midpointUrl = track.getValue();
+                }
+                else if( track.getEvent().equals("thirdQuartile"))
+                {
+                    thirdQuartile = track.getValue();
+                }
+            }
+
+            if( startUrl != null )
+            {
+                if( DebugManager.INSTANCE.isDebug() ) {
+                    Toast.makeText(VideoActivity.this, "Tracking START view with url: " + startUrl, Toast.LENGTH_LONG).show();
+                }
+
+                track(startUrl);
+            }
+
+            if( progress >= 0.25 )
+            {
+                if( firstQuartile != null )
+                {
+                    if( DebugManager.INSTANCE.isDebug() ) {
+                        Toast.makeText(VideoActivity.this, "Tracking FIRST QUARTILE view with url: " + firstQuartile, Toast.LENGTH_LONG).show();
+                    }
+
+                    track(firstQuartile);
+                }
+
+                if( progress >= 0.5 )
+                {
+                    if( midpointUrl != null )
+                    {
+                        if( DebugManager.INSTANCE.isDebug() ) {
+                            Toast.makeText(VideoActivity.this, "Tracking MIDPOINT view with url: " + midpointUrl, Toast.LENGTH_LONG).show();
+                        }
+
+                        track(midpointUrl);
+                    }
+
+
+                    if( progress >= 0.75 )
+                    {
+                        if( thirdQuartile != null )
+                        {
+                            if( DebugManager.INSTANCE.isDebug() ) {
+                                Toast.makeText(VideoActivity.this, "Tracking THIRD QUARTILE view with url: " + thirdQuartile, Toast.LENGTH_LONG).show();
+                            }
+
+                            track(thirdQuartile);
+                        }
+
+                    }
+                }
+            }
+
+        }
+    };
 
     private int mStopPosition;
 
@@ -85,7 +166,7 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
 
         mVV.setVideoURI(Uri.parse(adUrl));
         mVV.start();
-
+        mVV.postDelayed(mRunnable, 1000);
 
         // Track impressions
         for( String impression : mVastUri.getAd().getWrapper().getImpressions() )
@@ -143,41 +224,24 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
 
             case AD:
                 // Track events
-                String startUrl = "";
-                String firstQuartile = "";
-                String midpointUrl = "";
-                String thirdQuartile = "";
                 String completeUrl = "";
 
                 for( Tracking track : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getTrackingEvents().getTrackings() )
                 {
-                    if( track.getEvent().equals("start"))
-                    {
-                        startUrl = track.getValue();
-                    }
-                    else if( track.getEvent().equals("firstQuartile"))
-                    {
-                        firstQuartile = track.getValue();
-                    }
-                    else if( track.getEvent().equals("midpoint"))
-                    {
-                        midpointUrl = track.getValue();
-                    }
-                    else if( track.getEvent().equals("thirdQuartile"))
-                    {
-                        thirdQuartile = track.getValue();
-                    }
-                    else if( track.getEvent().equals("complete"))
+                    if( track.getEvent().equals("complete"))
                     {
                         completeUrl = track.getValue();
                     }
                 }
 
-                track(startUrl);
-                track(firstQuartile);
-                track(midpointUrl);
-                track(thirdQuartile);
-                track(completeUrl);
+                if( completeUrl != null )
+                {
+                    if( DebugManager.INSTANCE.isDebug() ) {
+                        Toast.makeText(VideoActivity.this, "Tracking COMPLETE view with url: " + completeUrl, Toast.LENGTH_LONG).show();
+                    }
+
+                    track(completeUrl);
+                }
 
                 // Change state
                 mViewingState = ViewingState.TRAILER;
@@ -208,7 +272,7 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
                 // Trailer source
                 mVV.setVideoURI(Uri.parse(mTrailer.getUrl()));
                 mVV.start();
-
+                mVV.removeCallbacks(mRunnable);
 
                 break;
 
@@ -252,6 +316,10 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
                     }
                 }
 
+                if( DebugManager.INSTANCE.isDebug() ) {
+                    Toast.makeText(this, "Tracking click", Toast.LENGTH_LONG).show();
+                }
+
                 track(startUrl);
 
                 if( progress >= 0.25 )
@@ -272,7 +340,13 @@ public class VideoActivity extends BaseActivity implements MediaPlayer.OnComplet
                 // Track clicks
                 for( String click : mVastUri.getAd().getWrapper().getCreatives().getCreative().getLinear().getVideoClicks().getClickTrackings() )
                 {
-                    track(click);
+                    if( click != null )
+                    {
+                        if( DebugManager.INSTANCE.isDebug() )
+                            Toast.makeText(this, "Tracking click with url: " + click, Toast.LENGTH_LONG).show();
+
+                        track(click);
+                    }
                 }
 
 
