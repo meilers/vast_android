@@ -3,6 +3,8 @@ package com.sourceknowledge.vast.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.sourceknowledge.vast.managers.ZoneIdManager;
@@ -15,6 +17,7 @@ import com.sourceknowledge.vast.rest.DownloadVastTagClient;
 import com.sourceknowledge.vast.rest.DownloadVastTagUriClient;
 import com.sourceknowledge.vast.rest.GenericClientManager;
 import com.sourceknowledge.vast.rest.MovieChickApiClientManager;
+import com.sourceknowledge.vast.rest.TrackClient;
 import com.sourceknowledge.vast.rest.VastUriApiClientManager;
 import com.sourceknowledge.vast.rest.requests.VastRequest;
 
@@ -39,6 +42,9 @@ public class FetchVastAndTrailerService extends IntentService {
         public static final String OUT_VAST = "outVast";
         public static final String OUT_VAST_URI = "outVastUri";
         public static final String OUT_TRAILER = "outTrailer";
+
+        public static final String OUT_ERROR = "outError";
+
 
     }
 
@@ -83,9 +89,26 @@ public class FetchVastAndTrailerService extends IntentService {
                 String json = new Gson().toJson(productsRequest);
                 TypedInput in = new TypedByteArray("application/json", json.getBytes("UTF-8"));
 
-                Vast vastUri = vastUriClient.downloadVastClientUri(in);
-                vastClient= GenericClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, vastUri.getAd().getWrapper().getVASTAdTagURI());
-                Vast vast = vastClient.downloadVastClient(ZoneIdManager.INSTANCE.getZoneId());
+                Vast vastUri = vastUriClient.downloadVastClientUri(in, ZoneIdManager.INSTANCE.getZoneId());
+                Vast vast = vastUri;
+                String vastUrl;
+
+                while( vast.getAd().getWrapper() != null && vast.getAd().getWrapper().getVASTAdTagURI() != null )
+                {
+
+                    vastUrl = vast.getAd().getWrapper().getVASTAdTagURI();
+
+                    String[] splits = vastUrl.split("/", -1);
+                    String path = splits[splits.length - 1];
+
+                    String baseVastUrl = vastUrl.substring(0, vastUrl.length() - path.length() - 1);
+                    vastClient = GenericClientManager.INSTANCE.getClient(c, DownloadVastTagClient.class, baseVastUrl);
+
+
+                    SystemClock.sleep(2000);
+                    vast = vastClient.downloadVastClient(path);
+                }
+
 
                 Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);
                 resultIntent.putExtra(EXTRAS.OUT_VAST_URI, vastUri);
@@ -96,9 +119,17 @@ public class FetchVastAndTrailerService extends IntentService {
             catch (RetrofitError e)
             {
                 e.printStackTrace();
+
+                Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);
+                resultIntent.putExtra(EXTRAS.OUT_ERROR, e.getMessage());
+                sendBroadcast(resultIntent);
             }
             catch(Exception e) {
                 e.printStackTrace();
+
+                Intent resultIntent = new Intent(ACTIONS.FETCH_VAST_AND_TRAILER_COMPLETED);
+                resultIntent.putExtra(EXTRAS.OUT_ERROR, e.getMessage());
+                sendBroadcast(resultIntent);
             }
 
 

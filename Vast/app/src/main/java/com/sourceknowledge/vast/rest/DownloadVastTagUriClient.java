@@ -12,6 +12,6 @@ import retrofit.mime.TypedInput;
  */
 public interface DownloadVastTagUriClient {
     @POST("/bid.php")
-    Vast downloadVastClientUri(@Body TypedInput payload);
+    Vast downloadVastClientUri(@Body TypedInput payload, @Query("zoneid") String zoneId);
 }
 

@@ -13,7 +13,7 @@ import retrofit.mime.TypedInput;
  * Created by omegatai on 2014-06-17.
  */
 public interface DownloadVastTagClient {
-    @GET("/")
-    Vast downloadVastClient(@Query("zoneid") String zoneId);
+    @GET("/{path}")
+    Vast downloadVastClient(@Path("path") String path);
 }
 

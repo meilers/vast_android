@@ -23,7 +23,6 @@ public enum GenericClientManager {
     private String mBaseUrl;
 
     private RestAdapter mRestAdapter;
-    private Map<String, Object> mClients = new HashMap<String, Object>();
 
 
 
@@ -45,11 +44,7 @@ public enum GenericClientManager {
                 .build();
 
         T client = null;
-        if ((client = (T) mClients.get(clazz.getCanonicalName())) != null) {
-            return client;
-        }
         client = mRestAdapter.create(clazz);
-        mClients.put(clazz.getCanonicalName(), client);
         return client;
     }
 

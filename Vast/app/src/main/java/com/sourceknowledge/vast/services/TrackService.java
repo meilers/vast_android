@@ -42,28 +42,34 @@ public class TrackService extends IntentService {
 
         if(!DebugManager.INSTANCE.isDebug())
         {
-            String action = intent.getAction();
-            Context c = getApplicationContext();
-            String trackUrl = intent.getExtras().getString(EXTRAS.IN_TRACK_URL);
 
-            // TODO: get auction price and auction id
-            trackUrl = trackUrl.replace("${AUCTION_ID}", "1");
-            trackUrl = trackUrl.replace("${AUCTION_PRICE}", "test-auction-123");
+            try {
+                String action = intent.getAction();
+                Context c = getApplicationContext();
+                String trackUrl = intent.getExtras().getString(EXTRAS.IN_TRACK_URL);
 
-            if (ACTIONS.TRACK.equals(action) && trackUrl != null ) {
+                // TODO: get auction price and auction id
+                trackUrl = trackUrl.replace("${AUCTION_ID}", "1");
+                trackUrl = trackUrl.replace("${AUCTION_PRICE}", "test-auction-123");
+                trackUrl = java.net.URLDecoder.decode(trackUrl, "UTF-8");
 
-                TrackClient vastClient = GenericClientManager.INSTANCE.getClient(c, TrackClient.class, trackUrl);
+                String[] splits = trackUrl.split("/", -1);
+                String path = splits[splits.length-1];
 
-                try {
-                    vastClient.trackAdProgress();
+                String baseTrackUrl = trackUrl.substring(0,trackUrl.length()-path.length()-1);
+
+                if (ACTIONS.TRACK.equals(action) ) {
+
+                    TrackClient vastClient = GenericClientManager.INSTANCE.getClient(c, TrackClient.class, baseTrackUrl);
+                    vastClient.trackAdProgress(path);
                 }
-                catch (RetrofitError e)
-                {
-                    e.printStackTrace();
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
+            }
+            catch (RetrofitError e)
+            {
+                e.printStackTrace();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
             }
         }
 
